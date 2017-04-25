@@ -5,33 +5,40 @@ Gengu.GameState = {
   init: function() {    
 
     //constants
-    this.RUNNING_SPEED = 180;
-    this.JUMPING_SPEED = 500;
+    this.RUNNING_SPEED = 300;
+    this.JUMPING_SPEED = 600;
+    this.maxJumpDistance = 500;
 
     //gravity
-    this.game.physics.arcade.gravity.y = 1000;    
+    this.game.physics.arcade.gravity.y = 2000;    
+    
+    //world bounds
+    this.game.world.setBounds(0, 0, 2160, 720);
     
     //cursor keys to move the player
     this.cursors = this.game.input.keyboard.createCursorKeys();
+    this.spaceBar = this.game.input.keyboard.addKey([Phaser.Keyboard.SPACEBAR]);
   },
   create: function() {
     //load current level
     this.loadLevel();
     
     //show on-screen touch controls
-    this.createOnscreenControls();    
+    //this.createOnscreenControls();    
   },   
-  update: function() {    
-    this.game.physics.arcade.collide(this.player, this.platform); 
+  update: function() {   
+    
+    this.game.physics.arcade.collide(this.player, this.collisionLayer); 
 
     this.player.body.velocity.x = 0;
-
-    if(this.cursors.left.isDown || this.player.customParams.isMovingLeft) {
+    
+    //horizontal movement
+    if(this.cursors.left.isDown) {
       this.player.body.velocity.x = -this.RUNNING_SPEED;
       this.player.scale.setTo(1, 1);
       this.player.play('walking');
     }
-    else if(this.cursors.right.isDown || this.player.customParams.isMovingRight) {
+    else if(this.cursors.right.isDown) {
       this.player.body.velocity.x = this.RUNNING_SPEED;
       this.player.scale.setTo(-1, 1);
       this.player.play('walking');
@@ -40,32 +47,53 @@ Gengu.GameState = {
       this.player.animations.stop();
       this.player.frame = 3;
     }
-
-    if((this.cursors.up.isDown || this.player.customParams.mustJump) && (this.player.body.blocked.down || this.player.body.touching.down)) {
-      this.player.body.velocity.y = -this.JUMPING_SPEED;
-      this.player.customParams.mustJump = false;
+    
+    
+    //jump
+    if((this.spaceBar.isDown) && (this.player.body.blocked.down || this.player.body.touching.down)) {
+      this.playerJump();
+    }
+    
+    
+    //manual restart
+    if(this.cursors.down.isDown){
+      this.state.start('Game');
     }
   },
   loadLevel: function(){  
-
+    
+    this.map = this.add.tilemap('level1');
+    
+    this.map.addTilesetImage('tiles_spritesheet', 'gameTiles');
+    
+    //layers
+    this.backgroundLayer = this.map.createLayer('backgroundLayer');
+    this.collisionLayer = this.map.createLayer('collisionLayer');
+    
+    //send background to back
+    this.game.world.sendToBack(this.backgroundLayer);
+    
+    //collision on collisionLayer
+    this.map.setCollisionBetween(1,160, true, 'collisionLayer');
+    
     //create player
-    this.player = this.add.sprite(100, 150, 'player', 3);
+    this.player = this.add.sprite(100, this.game.world.height * 0.6, 'player', 3);
     this.player.anchor.setTo(0.5);
     this.player.animations.add('walking', [0, 1, 2, 1], 6, true);
     this.game.physics.arcade.enable(this.player);
     this.player.customParams = {};
     this.player.body.collideWorldBounds = true;
+    this.player.body.setSize(14,28,0,0);
     
-    //create a sample platform
-    this.platform = this.add.sprite(50, 180, 'platform');
-    this.game.physics.arcade.enable(this.platform);
-    this.platform.body.allowGravity = false;
-    this.platform.body.immovable = true;
+   
 
     //follow player with the camera
-    this.game.camera.follow(this.player);
+    var style = 'STYLE_TOPDOWN';
+    this.game.camera.follow(this.player, style);
   },
+  
   createOnscreenControls: function(){
+    /*
     this.leftArrow = this.add.button(20, this.game.height - 60, 'arrowButton');
     this.rightArrow = this.add.button(110, this.game.height - 60, 'arrowButton');
     this.actionButton = this.add.button(this.game.width - 100, this.game.height - 60, 'actionButton');
@@ -119,5 +147,25 @@ Gengu.GameState = {
     this.rightArrow.events.onInputOut.add(function(){
       this.player.customParams.isMovingRight = false;
     }, this);
-  }  
+    */
+  },
+  
+  playerJump: function(){
+    if(this.player.body.touching.down || this.player.body.blocked.down){
+      this.startJumpY = this.player.y;
+      
+      this.isJumping = true;
+      this.jumpPeaked = false;
+      
+      this.player.body.velocity.y = -this.JUMPING_SPEED;
+    }else if(this.isJumping && !this.jumpPeaked){
+      var distanceJumped = this.startJumpY - this.player.y;
+      
+      if(distanceJumped <= this.maxJumpDistance) {
+        this.player.body.velocity.y = -this.JUMPING_SPEED;
+      }else {
+        this.jumpPeaked = true;
+      }
+    }
+  }
 };

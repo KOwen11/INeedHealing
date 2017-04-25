@@ -18,9 +18,12 @@ Gengu.PreloadState = {
     this.load.spritesheet('fly', 'assets/images/fly_spritesheet.png', 35, 18, 2, 1, 2);    
     this.load.image('arrowButton', 'assets/images/arrowButton.png');    
     this.load.image('actionButton', 'assets/images/actionButton.png');    
-
+    
+    this.load.image('gameTiles', 'assets/images/tiles_spritesheet.png');
+    this.load.tilemap('level1', 'assets/levels/level1.json', null, Phaser.Tilemap.TILED_JSON);
+    
   },
   create: function() {
-    this.state.start('Game');
+    this.state.start('Home');
   }
 };
