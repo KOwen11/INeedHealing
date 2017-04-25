@@ -1,7 +1,7 @@
-var ZPlat = ZPlat || {};
+var Gengu = Gengu || {};
 
 //loading the game assets
-ZPlat.PreloadState = {
+Gengu.PreloadState = {
   preload: function() {
     //show loading screen
     this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'preloadbar');

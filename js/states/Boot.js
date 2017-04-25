@@ -1,7 +1,7 @@
-var ZPlat = ZPlat || {};
+var Gengu = Gengu || {};
 
 //setting game configuration and loading the assets for the loading screen
-ZPlat.BootState = {
+Gengu.BootState = {
   init: function() {
     //loading screen will have a white background
     this.game.stage.backgroundColor = '#fff';  

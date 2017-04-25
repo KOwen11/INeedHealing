@@ -1,6 +1,6 @@
-var ZPlat = ZPlat || {};
+var Gengu = Gengu || {};
 
-ZPlat.GameState = {
+Gengu.GameState = {
 
   init: function() {    
 

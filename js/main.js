@@ -1,9 +1,9 @@
-var ZPlat = ZPlat || {};
+var Gengu = Gengu || {};
 
-ZPlat.game = new Phaser.Game(480, 360, Phaser.AUTO);
+Gengu.game = new Phaser.Game(480, 360, Phaser.AUTO);
 
-ZPlat.game.state.add('Boot', ZPlat.BootState); 
-ZPlat.game.state.add('Preload', ZPlat.PreloadState); 
-ZPlat.game.state.add('Game', ZPlat.GameState);
+Gengu.game.state.add('Boot', Gengu.BootState); 
+Gengu.game.state.add('Preload', Gengu.PreloadState); 
+Gengu.game.state.add('Game', Gengu.GameState);
 
-ZPlat.game.state.start('Boot'); 
+Gengu.game.state.start('Boot'); 
