@@ -5,8 +5,8 @@ Gengu.GameState = {
   init: function() {    
 
     //constants
-    this.RUNNING_SPEED = 300;
-    this.JUMPING_SPEED = 600;
+    this.RUNNING_SPEED = 250;
+    this.JUMPING_SPEED = 700;
     this.maxJumpDistance = 500;
 
     //gravity
@@ -29,8 +29,10 @@ Gengu.GameState = {
   update: function() {   
     
     this.game.physics.arcade.collide(this.player, this.collisionLayer); 
+    this.game.physics.arcade.collide(this.slime, this.collisionLayer);
+    this.game.physics.arcade.collide(this.player, this.slime);
+    
 
-    this.player.body.velocity.x = 0;
     
     //horizontal movement
     if(this.cursors.left.isDown) {
@@ -76,6 +78,7 @@ Gengu.GameState = {
     //collision on collisionLayer
     this.map.setCollisionBetween(1,160, true, 'collisionLayer');
     
+    
     //create player
     this.player = this.add.sprite(100, this.game.world.height * 0.6, 'player', 3);
     this.player.anchor.setTo(0.5);
@@ -83,13 +86,24 @@ Gengu.GameState = {
     this.game.physics.arcade.enable(this.player);
     this.player.customParams = {};
     this.player.body.collideWorldBounds = true;
-    this.player.body.setSize(14,28,0,0);
+    this.player.body.setSize(12,28,0,0);
+    this.player.body.drag.x = 1200;
     
+    //follow player with the camera
+    this.game.camera.follow(this.player);
+   
+   //add slimes
+   this.slime = this.add.sprite(350, this.game.world.height * 0.5, 'slime');
+   this.game.physics.arcade.enable(this.slime);
+   this.slime.body.collideWorldBounds = true;
+   this.slime.body.drag.x = 800;
+   
    
 
-    //follow player with the camera
-    var style = 'STYLE_TOPDOWN';
-    this.game.camera.follow(this.player, style);
+  },
+  
+  blockBump: function(block){
+    
   },
   
   createOnscreenControls: function(){
