@@ -11,7 +11,7 @@ Gengu.GameState = {
 
     //gravity
     this.game.physics.arcade.gravity.y = 2000;    
-    this.game.world.setBounds(0,0,2200,860);
+    this.game.world.setBounds(0,0,2040,700);
     
     //cursor keys to move the player
     this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -79,7 +79,7 @@ Gengu.GameState = {
     //layers
     this.backgroundLayer = this.map.createLayer('backgroundLayer');
     this.collisionLayer = this.map.createLayer('collisionLayer');
-    this.waterLayer = this.map.createLayer('waterLayer');
+
     this.objectLayer = this.map.createLayer('objectLayer');
     
     //send background to back

@@ -29,37 +29,37 @@
          "objects":[
                 {
                  "gid":41,
-                 "height":36,
+                 "height":35,
                  "id":1,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":36,
+                 "width":35,
                  "x":145.333333333333,
                  "y":541.333333333333
                 }, 
                 {
                  "gid":65,
-                 "height":36,
+                 "height":35,
                  "id":2,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":36,
+                 "width":35,
                  "x":1441.33333333333,
                  "y":288
                 }, 
                 {
                  "gid":41,
-                 "height":36,
+                 "height":35,
                  "id":3,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":36,
+                 "width":35,
                  "x":1476.66666666667,
                  "y":288.666666666667
                 }],
@@ -73,7 +73,7 @@
  "nextobjectid":4,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tileheight":36,
+ "tileheight":35,
  "tilesets":[
         {
          "columns":12,
@@ -83,12 +83,12 @@
          "imagewidth":457,
          "margin":0,
          "name":"tiles_spritesheet",
-         "spacing":0,
+         "spacing":1,
          "tilecount":156,
-         "tileheight":36,
-         "tilewidth":36
+         "tileheight":35,
+         "tilewidth":35
         }],
- "tilewidth":36,
+ "tilewidth":35,
  "version":1,
  "width":60
 }
