@@ -11,9 +11,7 @@ Gengu.GameState = {
 
     //gravity
     this.game.physics.arcade.gravity.y = 2000;    
-    
-    //world bounds
-    this.game.world.setBounds(0, 0, 2160, 720);
+    this.game.world.setBounds(0,0,2200,860);
     
     //cursor keys to move the player
     this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -32,7 +30,7 @@ Gengu.GameState = {
     this.game.physics.arcade.collide(this.slime, this.collisionLayer);
     this.game.physics.arcade.collide(this.player, this.slime);
     
-
+  
     
     //horizontal movement
     if(this.cursors.left.isDown) {
@@ -54,10 +52,20 @@ Gengu.GameState = {
     //jump
     if((this.spaceBar.isDown) && (this.player.body.blocked.down || this.player.body.touching.down)) {
       this.playerJump();
+      this.player.body.drag.x = 1200;
     }
     
+    if(this.player.body.blocked.down || this.player.body.touching.down) {
+      this.player.body.drag.x = 1200;
+    }else{
+      this.player.body.drag.x = 800;
+    }
     
-    //manual restart
+    //manual restart, test related movement
+    if(this.cursors.up.isDown && this.spaceBar.isDown){
+      this.player.body.velocity.y = -300;
+    }
+    
     if(this.cursors.down.isDown){
       this.state.start('Game');
     }
@@ -71,12 +79,16 @@ Gengu.GameState = {
     //layers
     this.backgroundLayer = this.map.createLayer('backgroundLayer');
     this.collisionLayer = this.map.createLayer('collisionLayer');
+    this.waterLayer = this.map.createLayer('waterLayer');
+    this.objectLayer = this.map.createLayer('objectLayer');
     
     //send background to back
     this.game.world.sendToBack(this.backgroundLayer);
     
     //collision on collisionLayer
     this.map.setCollisionBetween(1,160, true, 'collisionLayer');
+    
+    
     
     
     //create player
@@ -87,7 +99,7 @@ Gengu.GameState = {
     this.player.customParams = {};
     this.player.body.collideWorldBounds = true;
     this.player.body.setSize(12,28,0,0);
-    this.player.body.drag.x = 1200;
+    
     
     //follow player with the camera
     this.game.camera.follow(this.player);
@@ -97,9 +109,6 @@ Gengu.GameState = {
    this.game.physics.arcade.enable(this.slime);
    this.slime.body.collideWorldBounds = true;
    this.slime.body.drag.x = 800;
-   
-   
-
   },
   
   blockBump: function(block){
