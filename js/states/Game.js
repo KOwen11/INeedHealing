@@ -41,23 +41,29 @@ Gengu.GameState = {
     //horizontal movement
     if(this.cursors.left.isDown) {
       this.player.body.velocity.x = -this.RUNNING_SPEED;
-      this.player.scale.setTo(1, 1);
+      this.player.scale.setTo(-0.4, 0.4);
       this.player.play('walking');
     }
     else if(this.cursors.right.isDown) {
       this.player.body.velocity.x = this.RUNNING_SPEED;
-      this.player.scale.setTo(-1, 1);
+      this.player.scale.setTo(0.4, 0.4);
       this.player.play('walking');
+    }else {
+      this.player.animations.stop();
+      this.player.frame = 4;
     }
-    else {
+
+    
+    /*
+    if(!this.player.body.touching.down || !this.player.body.blocked.down){
+      this.player.setFrame(3);
+    }
+    */
+    //jump
+    if(this.spaceBar.isDown && (this.player.body.blocked.down || this.player.body.touching.down)) {
+      this.playerJump();
       this.player.animations.stop();
       this.player.frame = 3;
-    }
-    
-    
-    //jump
-    if((this.spaceBar.isDown) && (this.player.body.blocked.down || this.player.body.touching.down)) {
-      this.playerJump();
       this.player.body.drag.x = 1200;
     }
     if(this.spaceBar.isDown && this.gameOverText){
@@ -123,22 +129,25 @@ Gengu.GameState = {
     
     //add a goal
     var goalArray = this.findObjectsByType('goal', this.map, 'objectLayer');
-    this.goal = this.add.sprite(goalArray[0].x, goalArray[0].y, goalArray[0].type);
+    this.goal = this.add.sprite(goalArray[0].x, goalArray[0].y, 'mercy');
     this.game.physics.arcade.enable(this.goal);
     this.goal.body.allowGravity = false;
     this.goal.nextLevel = goalArray[0].properties.nextLevel;
+    this.goal.scale.setTo(0.75, 0.75);
+    this.goal.body.setSize(40,70);
     
     
     
     //create player
     var playerArray = this.findObjectsByType('player', this.map, 'objectLayer');
-    this.player = this.add.sprite(playerArray[0].x, playerArray[0].y, 'player', 3);
+    this.player = this.add.sprite(playerArray[0].x, playerArray[0].y, 'player', 4);
     this.player.anchor.setTo(0.5);
     this.player.animations.add('walking', [0, 1, 2, 1], 6, true);
     this.game.physics.arcade.enable(this.player);
     this.player.customParams = {};
     this.player.body.collideWorldBounds = true;
-    this.player.body.setSize(12,28,0,0);
+    this.player.scale.setTo(0.4, 0.4);
+    this.player.body.setSize(40,70,0,0);
     
     
     //follow player with the camera
@@ -181,19 +190,20 @@ Gengu.GameState = {
     this.victoryText = this.add.text(this.player.body.x, this.player.body.y, 'YOU WIN!', style);
     this.victoryText.anchor.setTo(0.5);
     this.player.kill();
-    this.winner = this.add.sprite(this.player.body.x, this.player.body.y, 'player', 3);
+    this.winner = this.add.sprite(this.player.body.x, this.player.body.y, 'player', 4);
     this.winner.anchor.setTo(0.5);
+    this.winner.scale.setTo(0.4, 0.4);
     this.game.physics.arcade.enable(this.winner);
     this.winner.customParams = {};
     this.winner.body.collideWorldBounds = true;
-    this.winner.body.setSize(12,28,0,0);
+    this.winner.body.setSize(40,70,0,0);
     this.winner.body.velocity.y = -400;
     this.winner.body.drag.y = 500;
   },
   gameOver: function(){
     this.deadPlayer = this.add.sprite(this.player.body.x, this.player.body.y, 'player', 2);
     this.player.kill();
-    this.deadPlayer.scale.setTo(1, -1);
+    this.deadPlayer.scale.setTo(0.5, -0.5);
     this.deadPlayer.anchor.setTo(0.5);
     this.game.physics.arcade.enable(this.deadPlayer);
     this.deadPlayer.customParams = {};

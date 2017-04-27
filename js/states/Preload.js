@@ -14,10 +14,12 @@ Gengu.PreloadState = {
     this.load.image('platform', 'assets/images/platform.png');
     this.load.image('goal', 'assets/images/goal.png');
     this.load.image('slime', 'assets/images/slime.png');
-    this.load.spritesheet('player', 'assets/images/player_spritesheet.png', 28, 30, 5, 1, 1); 
+    //this.load.spritesheet('player', 'assets/images/player_spritesheet.png', 28, 30, 5, 1, 1); 
     this.load.spritesheet('fly', 'assets/images/fly_spritesheet.png', 35, 18, 2, 1, 2);    
+    this.load.spritesheet('player', 'assets/images/genji_spritesheet.png', 136, 92, 5, 1, 1);
     this.load.image('arrowButton', 'assets/images/arrowButton.png');    
     this.load.image('actionButton', 'assets/images/actionButton.png');    
+    this.load.image('mercy', 'assets/images/mercy.png');
     
     this.load.image('gameTiles', 'assets/images/tiles_spritesheet.png');
     this.load.tilemap('level1', 'assets/levels/level1.json', null, Phaser.Tilemap.TILED_JSON);
