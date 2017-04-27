@@ -2,13 +2,14 @@ var Gengu = Gengu || {};
 
 Gengu.GameState = {
 
-  init: function() {    
+  init: function(level) {    
 
     //constants
     this.RUNNING_SPEED = 250;
     this.JUMPING_SPEED = 700;
+    this.ENEMY_SPEED = 100;
     this.maxJumpDistance = 500;
-
+    this.currentLevel = level || 'level1';
     //gravity
     this.game.physics.arcade.gravity.y = 2000;    
     this.game.world.setBounds(0,0,2040,700);
@@ -17,6 +18,7 @@ Gengu.GameState = {
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.spaceBar = this.game.input.keyboard.addKey([Phaser.Keyboard.SPACEBAR]);
   },
+  
   create: function() {
     //load current level
     this.loadLevel();
@@ -24,13 +26,17 @@ Gengu.GameState = {
     //show on-screen touch controls
     //this.createOnscreenControls();    
   },   
+  
   update: function() {   
     
     this.game.physics.arcade.collide(this.player, this.collisionLayer); 
-    this.game.physics.arcade.collide(this.slime, this.collisionLayer);
-    this.game.physics.arcade.collide(this.player, this.slime);
-    
+    this.game.physics.arcade.collide(this.enemies, this.collisionLayer);
+    this.game.physics.arcade.collide(this.player, this.enemies, this.killCheck);
+    this.game.physics.arcade.overlap(this.player, this.goal, this.nextLevel, null, this);
+    this.game.physics.arcade.collide(this.deadPlayer, this.collisionLayer);
+    this.game.physics.arcade.collide(this.winner, this.collisionLayer);
   
+    
     
     //horizontal movement
     if(this.cursors.left.isDown) {
@@ -54,33 +60,58 @@ Gengu.GameState = {
       this.playerJump();
       this.player.body.drag.x = 1200;
     }
+    if(this.spaceBar.isDown && this.gameOverText){
+      this.gameOverText.destroy();
+      this.restartText.destroy();
+      this.restartText = null;
+      this.gameOverText = null;
+      this.state.start('Home');
+    }
+    
+    if(this.spaceBar.isDown && this.victoryText){
+      this.victoryText.destroy();
+      this.victoryText = null;
+      this.state.start('Home');
+    }
     
     if(this.player.body.blocked.down || this.player.body.touching.down) {
       this.player.body.drag.x = 1200;
     }else{
-      this.player.body.drag.x = 800;
+      this.player.body.drag.x = 900;
     }
     
-    //manual restart, test related movement
+    //non-suicidal slime movement
+    //this.ledgeCheck(this.slime.body.x, this.slime.body.y, this.slime); 
+    
+    //manual restart, test related inputs
     if(this.cursors.up.isDown && this.spaceBar.isDown){
       this.player.body.velocity.y = -300;
     }
     
     if(this.cursors.down.isDown){
       this.state.start('Game');
+      
+
+      
     }
   },
+  
+  killCheck: function(player, enemy){
+    enemy.killCheck(player);
+  },
+  
   loadLevel: function(){  
     
-    this.map = this.add.tilemap('level1');
-    
+    //this.map = this.add.tilemap('level1');
+    this.map = this.add.tilemap(this.currentLevel);
     this.map.addTilesetImage('tiles_spritesheet', 'gameTiles');
     
-    //layers
+    //itle layers
     this.backgroundLayer = this.map.createLayer('backgroundLayer');
     this.collisionLayer = this.map.createLayer('collisionLayer');
-
-    this.objectLayer = this.map.createLayer('objectLayer');
+    //this.objectLayer = this.map.createLayer('objectLayer');
+    
+    //
     
     //send background to back
     this.game.world.sendToBack(this.backgroundLayer);
@@ -88,11 +119,20 @@ Gengu.GameState = {
     //collision on collisionLayer
     this.map.setCollisionBetween(1,160, true, 'collisionLayer');
     
+    this.collisionLayer.resizeWorld();
+    
+    //add a goal
+    var goalArray = this.findObjectsByType('goal', this.map, 'objectLayer');
+    this.goal = this.add.sprite(goalArray[0].x, goalArray[0].y, goalArray[0].type);
+    this.game.physics.arcade.enable(this.goal);
+    this.goal.body.allowGravity = false;
+    this.goal.nextLevel = goalArray[0].properties.nextLevel;
     
     
     
     //create player
-    this.player = this.add.sprite(100, this.game.world.height * 0.6, 'player', 3);
+    var playerArray = this.findObjectsByType('player', this.map, 'objectLayer');
+    this.player = this.add.sprite(playerArray[0].x, playerArray[0].y, 'player', 3);
     this.player.anchor.setTo(0.5);
     this.player.animations.add('walking', [0, 1, 2, 1], 6, true);
     this.game.physics.arcade.enable(this.player);
@@ -103,16 +143,71 @@ Gengu.GameState = {
     
     //follow player with the camera
     this.game.camera.follow(this.player);
-   
-   //add slimes
-   this.slime = this.add.sprite(350, this.game.world.height * 0.5, 'slime');
-   this.game.physics.arcade.enable(this.slime);
-   this.slime.body.collideWorldBounds = true;
-   this.slime.body.drag.x = 800;
-  },
-  
-  blockBump: function(block){
     
+    
+    //add enemies
+    this.enemies = this.add.group();
+    var enemyArray = this.findObjectsByType('enemy', this.map, 'objectLayer');
+    this.enemyArraySize = enemyArray.length;
+  
+    var i;
+    for(i=0; i<this.enemyArraySize; i++){
+      var sampleEnemy = new Gengu.Enemy(this.game, enemyArray[i].x, enemyArray[i].y, 'slime', 100, this.map);
+      this.enemies.add(sampleEnemy);
+    }   
+   
+   
+     
+  },
+  nextLevel: function(player, goal){
+    if(goal.nextLevel > this.currentLevel){
+      this.game.state.start('Game', true, false, goal.nextLevel);
+    }else if(goal.nextLevel < this.currentLevel){
+      this.youWin();
+    }
+  },
+  findObjectsByType: function(targetType, tilemap, layer){
+    var result = [];
+    tilemap.objects[layer].forEach(function(element){
+      if(element.type == targetType){
+        element.y -= tilemap.tileHeight;
+        result.push(element);
+      }
+    }, this);
+    return result;
+  },
+  youWin: function(){
+    var style = {font: '60px Arial', fill: '#fff'};
+    this.victoryText = this.add.text(this.player.body.x, this.player.body.y, 'YOU WIN!', style);
+    this.victoryText.anchor.setTo(0.5);
+    this.player.kill();
+    this.winner = this.add.sprite(this.player.body.x, this.player.body.y, 'player', 3);
+    this.winner.anchor.setTo(0.5);
+    this.game.physics.arcade.enable(this.winner);
+    this.winner.customParams = {};
+    this.winner.body.collideWorldBounds = true;
+    this.winner.body.setSize(12,28,0,0);
+    this.winner.body.velocity.y = -400;
+    this.winner.body.drag.y = 500;
+  },
+  gameOver: function(){
+    this.deadPlayer = this.add.sprite(this.player.body.x, this.player.body.y, 'player', 2);
+    this.player.kill();
+    this.deadPlayer.scale.setTo(1, -1);
+    this.deadPlayer.anchor.setTo(0.5);
+    this.game.physics.arcade.enable(this.deadPlayer);
+    this.deadPlayer.customParams = {};
+    this.deadPlayer.body.collideWorldBounds = true;
+    this.deadPlayer.body.setSize(12,28,0,0);
+    this.deadPlayer.body.velocity.y = -400;
+    this.deadPlayer.body.drag.y = 500;
+    //this.state.start('Home');
+    var style = {font: '60px Arial', fill: '#fff'};
+    this.gameOverText = this.add.text(this.deadPlayer.body.x, this.deadPlayer.body.y, 'Game Over', style);
+    this.gameOverText.anchor.setTo(0.5);
+    var style2 = {font: '30px Arial', fill: '#fff'};
+    this.restartText = this.add.text(this.deadPlayer.body.x, this.deadPlayer.body.y + 80, 'Spacebar to retry', style2);
+    this.restartText.anchor.setTo(0.5);
   },
   
   createOnscreenControls: function(){
@@ -191,4 +286,5 @@ Gengu.GameState = {
       }
     }
   }
+  
 };

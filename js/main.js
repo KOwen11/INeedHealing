@@ -1,6 +1,8 @@
 var Gengu = Gengu || {};
 
-Gengu.game = new Phaser.Game(540, 300, Phaser.AUTO);
+Gengu.dim = Gengu.getGameLandscapeDimensions(500, 350);
+
+Gengu.game = new Phaser.Game(Gengu.dim.w, Gengu.dim.h, Phaser.AUTO);
 
 Gengu.game.state.add('Boot', Gengu.BootState); 
 Gengu.game.state.add('Preload', Gengu.PreloadState); 
