@@ -11,14 +11,20 @@ Gengu.HomeState = {
       this.player.scale.setTo(2,2);
       this.player.anchor.setTo(0.5);
       var style = {font: '40px Arial', fill: '#fff'};
-      this.startText = this.add.text(this.game.world.width * 0.5, this.game.world.height * 0.5, 'Press Space To Start', style);
+      this.startText = this.add.text(this.game.world.width * 0.5, this.game.world.height * 0.5, 'Start', style);
       this.startText.anchor.setTo(0.5);
       this.game.camera.follow(this.startText);
+      
+      
   },
   
   update: function(){
       if(this.spaceBar.isDown){
           this.start();
+      }
+      if(this.game.input.activePointer.isDown){
+        this.start();
+        
       }
   },
   start: function(){
