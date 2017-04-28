@@ -10,6 +10,7 @@ Gengu.GameState = {
     this.ENEMY_SPEED = 100;
     this.maxJumpDistance = 500;
     this.currentLevel = level || 'level1';
+    
     //gravity
     this.game.physics.arcade.gravity.y = 2000;    
     this.game.world.setBounds(0,0,2040,700);
@@ -17,6 +18,8 @@ Gengu.GameState = {
     //cursor keys to move the player
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.spaceBar = this.game.input.keyboard.addKey([Phaser.Keyboard.SPACEBAR]);
+    
+    this.game.renderer.renderSession.roundPixels = true;
   },
   
   create: function() {
@@ -39,12 +42,12 @@ Gengu.GameState = {
     
     
     //horizontal movement
-    if(this.cursors.left.isDown) {
+    if(this.cursors.left.isDown || this.player.customParams.isMovingLeft) {
       this.player.body.velocity.x = -this.RUNNING_SPEED;
       this.player.scale.setTo(-0.4, 0.4);
       this.player.play('walking');
     }
-    else if(this.cursors.right.isDown) {
+    else if(this.cursors.right.isDown || this.player.isMovingRight) {
       this.player.body.velocity.x = this.RUNNING_SPEED;
       this.player.scale.setTo(0.4, 0.4);
       this.player.play('walking');
@@ -60,7 +63,7 @@ Gengu.GameState = {
     }
     */
     //jump
-    if(this.spaceBar.isDown && (this.player.body.blocked.down || this.player.body.touching.down)) {
+    if((this.spaceBar.isDown || this.player.mustJump) && (this.player.body.blocked.down || this.player.body.touching.down)) {
       this.playerJump();
       this.player.animations.stop();
       this.player.frame = 3;
@@ -221,7 +224,7 @@ Gengu.GameState = {
   },
   
   createOnscreenControls: function(){
-    /*
+
     this.leftArrow = this.add.button(20, this.game.height - 60, 'arrowButton');
     this.rightArrow = this.add.button(110, this.game.height - 60, 'arrowButton');
     this.actionButton = this.add.button(this.game.width - 100, this.game.height - 60, 'actionButton');
@@ -275,7 +278,7 @@ Gengu.GameState = {
     this.rightArrow.events.onInputOut.add(function(){
       this.player.customParams.isMovingRight = false;
     }, this);
-    */
+    
   },
   
   playerJump: function(){
