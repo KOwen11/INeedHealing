@@ -27,7 +27,7 @@ Gengu.GameState = {
     this.loadLevel();
     
     //show on-screen touch controls
-    //this.createOnscreenControls();    
+    this.createOnscreenControls();    
   },   
   
   update: function() {   
@@ -47,7 +47,7 @@ Gengu.GameState = {
       this.player.scale.setTo(-0.4, 0.4);
       this.player.play('walking');
     }
-    else if(this.cursors.right.isDown || this.player.isMovingRight) {
+    else if(this.cursors.right.isDown || this.player.customParams.isMovingRight) {
       this.player.body.velocity.x = this.RUNNING_SPEED;
       this.player.scale.setTo(0.4, 0.4);
       this.player.play('walking');
@@ -63,7 +63,7 @@ Gengu.GameState = {
     }
     */
     //jump
-    if((this.spaceBar.isDown || this.player.mustJump) && (this.player.body.blocked.down || this.player.body.touching.down)) {
+    if((this.spaceBar.isDown || this.player.customParams.mustJump) && (this.player.body.blocked.down || this.player.body.touching.down)) {
       this.playerJump();
       this.player.animations.stop();
       this.player.frame = 3;
